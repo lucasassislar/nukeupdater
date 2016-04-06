@@ -17,7 +17,8 @@ namespace UpdateMaker
         {
             InitializeComponent();
 
-            project = new ProjectInfo(txtFolder.Text, false);
+            project = new ProjectInfo();
+            project.Initialize(txtFolder.Text, false);
             project.Name = "Default";
             UpdateView();
         }
@@ -30,7 +31,8 @@ namespace UpdateMaker
             {
                 if (browser.ShowDialog() == DialogResult.OK)
                 {
-                    project = new ProjectInfo(browser.SelectedPath, false);
+                    project = new ProjectInfo();
+                    project.Initialize(browser.SelectedPath, false);
                     project.Name = "Default";
                     UpdateView();
                 }

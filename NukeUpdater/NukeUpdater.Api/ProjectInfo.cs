@@ -5,6 +5,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -20,7 +21,7 @@ namespace NukeUpdater.Api
         public static readonly string ProjectInfoFile = "ProjectInfo.json";
 
         public string Name { get; set; }
-        public int Latest { get; private set; }
+        public int Latest { get; set; }
         public string ServerUrl { get; set; }
         public bool FinishedUpdate { get; set; }
 
@@ -32,18 +33,14 @@ namespace NukeUpdater.Api
 
         private CultureInfo c;
 
-        private ProjectInfo()
+        public ProjectInfo()
         {
-        }
-        public ProjectInfo(string root, bool isClient)
-        {
-            Initialize(root, isClient);
         }
 
         private string nukeDir;
         private string versionsDir;
 
-        private void Initialize(string root, bool client)
+        public void Initialize(string root, bool client)
         {
             c = CultureInfo.InvariantCulture;
 
@@ -56,11 +53,11 @@ namespace NukeUpdater.Api
             }
             Root = root;
             nukeDir = Path.Combine(root, NukeName);
+            versionsDir = Path.Combine(nukeDir, VersionsPath);
             Created = Directory.Exists(nukeDir);
 
             if (!client)
             {
-                versionsDir = Path.Combine(nukeDir, VersionsPath);
                 if (Created)
                 {
                     // see latest
@@ -76,15 +73,32 @@ namespace NukeUpdater.Api
             }
         }
 
-        public async Task<UpdateInfo> GetLatestFromServer()
+        public async Task<ProjectInfo> GetProjectFromServer()
         {
             using (WebClient client = new WebClient())
             {
-                string json = await client.DownloadStringTaskAsync(ServerUrl + "/" + ProjectInfoFile);
+                string url = ServerUrl + "/" + ProjectInfoFile;
+                string json = await client.DownloadStringTaskAsync(url);
+                ProjectInfo info = JsonConvert.DeserializeObject<ProjectInfo>(json);
+                return info;
+            }
+        }
+
+        public async Task<UpdateInfo> GetLatestVersionFromServer(ProjectInfo serverVersion)
+        {
+            return await GetVersionFromServer(serverVersion.Latest);
+        }
+        public async Task<UpdateInfo> GetVersionFromServer(int version)
+        {
+            using (WebClient client = new WebClient())
+            {
+                string url = ServerUrl + "/" + VersionsPath + "/" + VersionName + version.ToString(c) + JsonFormat;
+                string json = await client.DownloadStringTaskAsync(url);
                 UpdateInfo info = JsonConvert.DeserializeObject<UpdateInfo>(json);
                 return info;
             }
         }
+
 
         public UpdateInfo ReadUpdate(int revision)
         {
@@ -94,21 +108,50 @@ namespace NukeUpdater.Api
         }
 
         private EntryInfo downloading;
-        public void DoUpdateFromServer(UpdateInfo current, UpdateInfo update)
+        public void DoUpdateFromServer(UpdateInfo local, UpdateInfo update)
         {
-            string updateDir = Path.Combine(versionsDir, "Update");
+            string updateDir = Path.Combine(Root, "Update");
             Directory.CreateDirectory(updateDir);
 
-            string rootUrl = ServerUrl + "/" + ProjectInfoFile + "/" + VersionName + update.Revision.ToString(c);
+            string rootUrl = ServerUrl + VersionsPath + "/" + VersionName + update.Revision.ToString(c) + "/";
 
             for (int i = 0; i < update.Entries.Count; i++)
             {
                 EntryInfo entry = update.Entries[i];
 
+                if (entry.Type == EntryType.Directory)
+                {
+                    continue;
+                }
+
                 if (entry.State == EntryState.Added ||
                     entry.State == EntryState.Updated)
                 {
                     string relPath = Path.Combine(entry.RelativePath, entry.Name);
+
+                    // check the local file
+                    string localPath = Path.Combine(Root, relPath);
+
+                    if (File.Exists(localPath))
+                    {
+                        using (Stream inStream = File.OpenRead(localPath))
+                        {
+                            using (var md5 = new MD5CryptoServiceProvider())
+                            {
+                                var buffer = md5.ComputeHash(inStream);
+                                var sb = new StringBuilder();
+                                for (int j = 0; j < buffer.Length; j++)
+                                {
+                                    sb.Append(buffer[j].ToString("x2"));
+                                }
+                                string hash = sb.ToString();
+                                if (hash == entry.Hash)
+                                {
+                                    continue;
+                                }
+                            }
+                        }
+                    }
                     string to = Path.Combine(updateDir, relPath);
                     string dir = Path.GetDirectoryName(to);
                     Directory.CreateDirectory(dir);
@@ -116,7 +159,7 @@ namespace NukeUpdater.Api
                     downloading = entry;
                     using (WebClient client = new WebClient())
                     {
-                        client.DownloadProgressChanged += client_DownloadProgressChanged;
+                        Console.WriteLine("Downloading " + downloading.Name);
                         string url = rootUrl + relPath.Replace(Path.DirectorySeparatorChar, '/');
                         client.DownloadFile(url, to);
                     }
@@ -124,12 +167,6 @@ namespace NukeUpdater.Api
             }
 
             Directory.Delete(updateDir, true);
-        }
-
-        private void client_DownloadProgressChanged(object sender, DownloadProgressChangedEventArgs e)
-        {
-            Console.CursorLeft = 0;
-            Console.WriteLine(e.ProgressPercentage + "% downloaded of " + downloading.Name);
         }
 
         public void Make()
@@ -143,6 +180,8 @@ namespace NukeUpdater.Api
 
         public void SaveUpdate(UpdateInfo update)
         {
+            Latest = Math.Max(Latest, update.Revision);
+
             string path = Path.Combine(versionsDir, VersionName + update.Revision.ToString(CultureInfo.InvariantCulture) + JsonFormat);
             File.WriteAllText(path, JsonConvert.SerializeObject(update));
 
