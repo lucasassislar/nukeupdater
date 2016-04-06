@@ -24,6 +24,13 @@ namespace NukeUpdater.App
 
             if (!File.Exists(nukeFile))
             {
+                // go back one folder
+                loc = new DirectoryInfo(loc).Parent.FullName;
+                nukeFile = Path.Combine(loc, ProjectInfo.ProjectInfoFile);
+            }
+
+            if (!File.Exists(nukeFile))
+            {
                 Console.WriteLine("Application did not create default Nuke Updater files");
                 Console.WriteLine("Can't update");
                 Console.WriteLine();

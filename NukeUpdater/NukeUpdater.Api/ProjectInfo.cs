@@ -63,6 +63,7 @@ namespace NukeUpdater.Api
             {
                 string updatesFolder = Path.Combine(loc, UpdatesName);
                 string exePath = Path.Combine(updatesFolder, name + ".exe");
+                Directory.CreateDirectory(updatesFolder);
                 File.WriteAllBytes(exePath, NukeUpdater.Api.Properties.Resources.NukeUpdater_App);
             }
 #endif
