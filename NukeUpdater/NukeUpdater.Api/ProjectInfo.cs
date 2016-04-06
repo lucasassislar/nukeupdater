@@ -47,7 +47,7 @@ namespace NukeUpdater.Api
         private string versionsDir;
         private bool isClient;
 
-        public static void MakeDefault(string name, string server)
+        public static void MakeDefault(string name, string server, int latest)
         {
             if (!server.EndsWith("/"))
             {
@@ -55,7 +55,7 @@ namespace NukeUpdater.Api
             }
 
             ProjectInfo proj = new ProjectInfo();
-            proj.Latest = -1;
+            proj.Latest = latest;
             proj.ServerUrl = server;
             proj.Name = name;
             string loc = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);

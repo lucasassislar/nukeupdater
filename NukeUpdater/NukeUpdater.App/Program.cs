@@ -19,6 +19,7 @@ namespace NukeUpdater.App
             bool force = args.Length > 0 && args[0] == "force";
 
             string loc = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+            loc = Environment.CurrentDirectory;
             string nukeFile = Path.Combine(loc, ProjectInfo.ProjectInfoFile);
 
             if (!File.Exists(nukeFile))
