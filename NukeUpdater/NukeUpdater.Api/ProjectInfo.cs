@@ -51,22 +51,25 @@ namespace NukeUpdater.Api
             }
 
             ProjectInfo proj = new ProjectInfo();
-            proj.Latest = latest;
-            proj.ServerUrl = server;
-            proj.Name = name;
-            string loc = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
-            proj.InitializeClient(loc);
-            proj.Save();
+            if (!File.Exists(proj.Location))
+            {
+                proj.Latest = latest;
+                proj.ServerUrl = server;
+                proj.Name = name;
+                string loc = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+                proj.InitializeClient(loc);
+                proj.Save();
 
 #if EMBED
-            if (embed)
-            {
-                string updatesFolder = Path.Combine(loc, UpdatesName);
-                string exePath = Path.Combine(updatesFolder, name + ".exe");
-                Directory.CreateDirectory(updatesFolder);
-                File.WriteAllBytes(exePath, NukeUpdater.Api.Properties.Resources.NukeUpdater_App);
-            }
+                if (embed)
+                {
+                    string updatesFolder = Path.Combine(loc, UpdatesName);
+                    string exePath = Path.Combine(updatesFolder, name + ".exe");
+                    Directory.CreateDirectory(updatesFolder);
+                    File.WriteAllBytes(exePath, NukeUpdater.Api.Properties.Resources.NukeUpdater_App);
+                }
 #endif
+            }
         }
 
         public void InitializeClient(string root)
@@ -305,6 +308,14 @@ namespace NukeUpdater.Api
                         File.Copy(from, to);
                     }
                 }
+            }
+        }
+
+        public string Location
+        {
+            get
+            {
+                return Path.Combine(nukeDir, ProjectInfoFile);
             }
         }
 

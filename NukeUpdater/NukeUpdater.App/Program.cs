@@ -44,47 +44,58 @@ namespace NukeUpdater.App
 
             Console.WriteLine("NukeUpdater Version " + Version.ToString("F2"));
 
-            if (!proj.FinishedUpdate)
+            if (proj.FinishedUpdate)
+            {
+                Console.WriteLine("Contacting server....");
+                ProjectInfo update = proj.GetProjectFromServer().Result;
+
+                if (proj.FinishedUpdate) // if we didnt finish it doesnt matter if the server version is newer
+                {
+                    if (proj.Latest >= update.Latest && !force)
+                    {
+                        Console.WriteLine("Server version equal to local version");
+                        Console.WriteLine("Run with force argument to force an update if desired");
+                        Console.WriteLine();
+                        Console.WriteLine("Press ENTER to exit");
+                        Console.ReadLine();
+                        return;
+                    }
+                }
+
+                UpdateInfo local = proj.GetVersionFromServer(proj.Latest).Result; // get the most uptodate version of our local info
+                UpdateInfo latestServer = proj.GetLatestVersionFromServer(update).Result;
+                proj.DownloadUpdateFromServer(latestServer);
+                proj.DoUpdateFromServer(local, latestServer);
+
+                proj.FinishedUpdate = true;
+                proj.Latest = latestServer.Revision;
+                proj.Save();
+            }
+            else
             {
                 // user started the process to update, need to finish
                 Console.WriteLine("Detected an unfinished update for version " + proj.Latest);
                 Console.WriteLine();
 
-                UpdateInfo lo = proj.GetVersionFromServer(proj.Latest).Result; // get the most uptodate version of our local info
+                UpdateInfo lo;
+                if (proj.Latest == -1)
+                {
+                    // we dont know what version were in, so just go for latest
+                    ProjectInfo update = proj.GetProjectFromServer().Result;
+                    lo = proj.GetVersionFromServer(update.Latest).Result;
+                }
+                else
+                {
+                    lo = proj.GetVersionFromServer(proj.Latest).Result; // get the most uptodate version of our local info
+                }
+
                 proj.DownloadUpdateFromServer(lo);
                 proj.DoUpdateFromServer(null, lo);
 
                 proj.FinishedUpdate = true;
                 proj.Latest = lo.Revision;
                 proj.Save();
-
-                return;
             }
-
-            Console.WriteLine("Contacting server....");
-            ProjectInfo update = proj.GetProjectFromServer().Result;
-
-            if (proj.FinishedUpdate) // if we didnt finish it doesnt matter if the server version is newer
-            {
-                if (proj.Latest >= update.Latest && !force)
-                {
-                    Console.WriteLine("Server version equal to local version");
-                    Console.WriteLine("Run with force argument to force an update if desired");
-                    Console.WriteLine();
-                    Console.WriteLine("Press ENTER to exit");
-                    Console.ReadLine();
-                    return;
-                }
-            }
-
-            UpdateInfo local = proj.GetVersionFromServer(proj.Latest).Result; // get the most uptodate version of our local info
-            UpdateInfo latestServer = proj.GetLatestVersionFromServer(update).Result;
-            proj.DownloadUpdateFromServer(latestServer);
-            proj.DoUpdateFromServer(local, latestServer);
-
-            proj.FinishedUpdate = true;
-            proj.Latest = latestServer.Revision;
-            proj.Save();
         }
     }
 }
