@@ -47,6 +47,11 @@ namespace NukeUpdater.Api
             {
                 DirectoryInfo dir = dirs[i];
 
+                if (dir.Name == ProjectInfo.NukeName)
+                {
+                    continue;
+                }
+
                 string rel = Path.Combine(root, dir.Name);
                 EntryInfo entry = MakeDirAddEntry(update, dir, rel, rel.ToLower());
                 update.Entries.Add(entry);
@@ -64,7 +69,9 @@ namespace NukeUpdater.Api
                     EntryInfo entry = latest.Entries[i];
 
                     entry.NameLower = entry.Name.ToLower();
-                    entry.RelativePathLower = entry.RelativePathLower.ToLower();
+                    entry.RelativePathLower = entry.RelativePath.ToLower();
+
+                    latest.Entries[i] = entry; // structs
                 }
             }
 
@@ -82,7 +89,7 @@ namespace NukeUpdater.Api
         {
             string lowerRoot = root.ToLower();
 
-            List<EntryInfo> lastContent = latest.Entries.Where(c => c.RelativePathLower == lowerRoot).ToList();
+            List<EntryInfo> lastContent = latest.Entries.Where(c => c.Type == EntryType.File && c.RelativePathLower == lowerRoot).ToList();
 
             FileInfo[] files = parent.GetFiles();
             for (int i = 0; i < files.Length; i++)
@@ -127,11 +134,16 @@ namespace NukeUpdater.Api
             HandleDeletedFiles(update, lastContent);
 
             DirectoryInfo[] dirs = parent.GetDirectories();
-            lastContent = latest.Entries.Where(c => c.RelativePathLower.StartsWith(root)).ToList();
+            lastContent = latest.Entries.Where(c => c.Type == EntryType.Directory && c.Name != parent.Name && c.RelativePathLower == root).ToList();
 
             for (int i = 0; i < dirs.Length; i++)
             {
                 DirectoryInfo dir = dirs[i];
+
+                if (dir.Name == ProjectInfo.NukeName)
+                {
+                    continue;
+                }
 
                 string rel = Path.Combine(root, dir.Name);
                 string relLower = rel.ToLower();

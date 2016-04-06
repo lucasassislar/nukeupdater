@@ -17,14 +17,14 @@ namespace UpdateMaker
         [STAThread]
         static void Main()
         {
-            string testFolder = @"C:\nuke";
+            //string testFolder = @"C:\nuke";
 
-            UpdateInfoBuilder builder = new UpdateInfoBuilder();
-            UpdateInfo info = builder.MakeFirstUpdate(testFolder);
-            UpdateInfo sec = builder.MakeUpdate(info, testFolder);
+            //UpdateInfoBuilder builder = new UpdateInfoBuilder();
+            //UpdateInfo info = builder.MakeFirstUpdate(testFolder);
+            //UpdateInfo sec = builder.MakeUpdate(info, testFolder);
 
-            int wat = -1;
-            return;
+            //int wat = -1;
+            //return;
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
