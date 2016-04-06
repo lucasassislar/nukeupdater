@@ -182,16 +182,19 @@ namespace NukeUpdater.Api
             {
                 EntryInfo entry = update.Entries[i];
 
+                string relPath = Path.Combine(entry.RelativePath, entry.Name);
+                string to = Path.Combine(updateDir, relPath);
+
                 if (entry.Type == EntryType.Directory)
                 {
+                    Directory.CreateDirectory(to);
                     continue;
                 }
 
                 if (entry.State == EntryState.Added ||
                     entry.State == EntryState.Updated)
                 {
-                    string relPath = Path.Combine(entry.RelativePath, entry.Name);
-                    string to = Path.Combine(updateDir, relPath);
+                   
 
                     if (!File.Exists(to))
                     {
@@ -204,6 +207,14 @@ namespace NukeUpdater.Api
                     Directory.CreateDirectory(dir);
 
                     File.Move(to, rooted);
+                }
+                else if (entry.State == EntryState.Removed)
+                {
+                    // deleeeeete
+                    if (File.Exists(to))
+                    {
+                        File.Delete(to);
+                    }
                 }
             }
 
