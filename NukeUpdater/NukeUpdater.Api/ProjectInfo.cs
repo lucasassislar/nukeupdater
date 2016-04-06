@@ -311,6 +311,7 @@ namespace NukeUpdater.Api
             }
         }
 
+        [JsonIgnore]
         public string Location
         {
             get
