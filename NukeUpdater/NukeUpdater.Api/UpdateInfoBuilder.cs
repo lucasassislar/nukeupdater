@@ -49,6 +49,8 @@ namespace NukeUpdater.Api
 
                 string rel = Path.Combine(root, dir.Name);
                 EntryInfo entry = MakeDirAddEntry(update, dir, rel, rel.ToLower());
+                update.Entries.Add(entry);
+
                 RecursiveFirstUpdate(dir, update, rel);
             }
         }
@@ -80,6 +82,8 @@ namespace NukeUpdater.Api
         {
             string lowerRoot = root.ToLower();
 
+            List<EntryInfo> lastContent = latest.Entries.Where(c => c.RelativePathLower == lowerRoot).ToList();
+
             FileInfo[] files = parent.GetFiles();
             for (int i = 0; i < files.Length; i++)
             {
@@ -87,8 +91,7 @@ namespace NukeUpdater.Api
 
                 // search for file on latest version
                 string lowerName = file.Name.ToLower();
-                var search = latest.Entries.Where(c => c.NameLower == lowerName && c.RelativePathLower == lowerRoot);
-
+                var search = lastContent.Where(c => c.NameLower == lowerName);
                 if (search.Count() == 0)
                 {
                     EntryInfo entry = MakeFileAddEntry(update, file, root, lowerRoot);
@@ -97,6 +100,7 @@ namespace NukeUpdater.Api
                 else
                 {
                     EntryInfo last = search.First();
+                    lastContent.Remove(last);
 
                     string hash;
                     using (Stream s = file.OpenRead())
@@ -119,25 +123,57 @@ namespace NukeUpdater.Api
                 }
             }
 
+            // deleted files
+            HandleDeletedFiles(update, lastContent);
+
             DirectoryInfo[] dirs = parent.GetDirectories();
+            lastContent = latest.Entries.Where(c => c.RelativePathLower.StartsWith(root)).ToList();
+
             for (int i = 0; i < dirs.Length; i++)
             {
                 DirectoryInfo dir = dirs[i];
 
                 string rel = Path.Combine(root, dir.Name);
+                string relLower = rel.ToLower();
 
-                EntryInfo entry = new EntryInfo();
-                entry.LastUpdate = 0;
-                entry.Name = dir.Name;
-                entry.NameLower = dir.Name.ToLower();
-                entry.RelativePath = rel;
-                entry.State = EntryState.Added;
-                entry.Hash = "DIR";
+                // search for direcotry on latest version
+                string lowerName = dir.Name.ToLower();
+                var search = lastContent.Where(c => c.NameLower == lowerName && c.RelativePathLower == relLower);
+
+                if (search.Count() == 0)
+                {
+                    EntryInfo entry = MakeDirAddEntry(update, dir, rel, relLower);
+                    update.Entries.Add(entry);
+                }
+                else
+                {
+                    // cant change a folders hash because it has no content
+                    // just pass it forward so to say it still exists
+                    EntryInfo last = search.First();
+                    lastContent.Remove(last);
+
+                    last.State = EntryState.Unchanged;
+                    update.Entries.Add(last);
+                }
 
                 RecursiveMakeUpdate(dir, latest, update, rel);
             }
+
+            // deleted files
+            HandleDeletedFiles(update, lastContent);
         }
 
+        private void HandleDeletedFiles(UpdateInfo update, List<EntryInfo> entries)
+        {
+            for (int i = 0; i < entries.Count; i++)
+            {
+                EntryInfo entry = entries[i];
+                entry.State = EntryState.Removed;
+                entry.LastUpdate = update.Revision;
+                entry.Hash = string.Empty;
+                update.Entries.Add(entry);
+            }
+        }
 
         private EntryInfo MakeFileAddEntry(UpdateInfo update, FileInfo file, string root, string lowerRoot)
         {
@@ -148,6 +184,7 @@ namespace NukeUpdater.Api
             entry.RelativePath = root;
             entry.RelativePathLower = lowerRoot;
             entry.State = EntryState.Added;
+            entry.Type = EntryType.File;
             using (Stream s = file.OpenRead())
             {
                 entry.Hash = GetMD5HashFromFile(s);
@@ -164,7 +201,7 @@ namespace NukeUpdater.Api
             entry.RelativePath = root;
             entry.RelativePathLower = lowerRoot;
             entry.State = EntryState.Added;
-            entry.Hash = "DIR";
+            entry.Type = EntryType.Directory;
             return entry;
         }
 
