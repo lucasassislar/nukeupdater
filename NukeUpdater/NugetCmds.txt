@@ -1,3 +1,5 @@
+// For default release
 nuget pack "F:\Dev\nukeupdater\NukeUpdater\NukeUpdater.Api\NukeUpdater.Api.csproj" -Prop Configuration=Release
 
-nuget pack "F:\Dev\nukeupdater\NukeUpdater\NukeUpdater.App\NukeUpdater.App.csproj" -Prop Configuration=Release
+// For embedded release
+nuget pack "F:\Dev\nukeupdater\NukeUpdater\NukeUpdater.Api\NukeUpdater.Api.csproj" -Prop Configuration=Release_Embedded

@@ -25,9 +25,13 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
+    <DefineConstants>TRACE;EMBED</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release_Embedded|AnyCPU'">
+    <OutputPath>bin\Release_Embedded\</OutputPath>
+    <DefineConstants>EMBED</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Newtonsoft.Json">
