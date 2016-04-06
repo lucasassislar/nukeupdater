@@ -51,13 +51,13 @@ namespace NukeUpdater.Api
             }
 
             ProjectInfo proj = new ProjectInfo();
+            proj.Latest = latest;
+            proj.ServerUrl = server;
+            proj.Name = name;
+            string loc = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+            proj.InitializeClient(loc);
             if (!File.Exists(proj.Location))
             {
-                proj.Latest = latest;
-                proj.ServerUrl = server;
-                proj.Name = name;
-                string loc = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
-                proj.InitializeClient(loc);
                 proj.Save();
 
 #if EMBED
