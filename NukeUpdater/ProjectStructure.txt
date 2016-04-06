@@ -1,0 +1,16 @@
+Project Structure
+
+.nuke/
+	ProjectInfo.json
+	Versions/
+		Version0.json
+		Version1.json
+		Version3.json
+		Version4.json
+		0/
+			0/Version0file.bin			
+			0/picture.jpeg
+		1/
+			1/test.exe
+		3/
+		4/

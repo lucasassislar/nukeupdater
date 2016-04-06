@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -20,6 +21,8 @@ namespace NukeUpdater.Api
 
         public string Name { get; set; }
         public int Latest { get; private set; }
+        public string ServerUrl { get; set; }
+        public bool FinishedUpdate { get; set; }
 
         [JsonIgnore]
         public bool Created { get; private set; }
@@ -31,15 +34,15 @@ namespace NukeUpdater.Api
         private ProjectInfo()
         {
         }
-        public ProjectInfo(string root)
+        public ProjectInfo(string root, bool isClient)
         {
-            Initialize(root);
+            Initialize(root, isClient);
         }
 
         private string nukeDir;
         private string versionsDir;
 
-        private void Initialize(string root)
+        private void Initialize(string root, bool client)
         {
             if (root.Contains(NukeName))
             {
@@ -49,32 +52,47 @@ namespace NukeUpdater.Api
                 root = root.Remove(index, root.Length - index);
             }
             Root = root;
-
             nukeDir = Path.Combine(root, NukeName);
-            versionsDir = Path.Combine(nukeDir, VersionsPath);
-
             Created = Directory.Exists(nukeDir);
 
-            if (Created)
+            if (!client)
             {
-                // see latest
-                FileInfo[] files = new DirectoryInfo(versionsDir).GetFiles();
-                int[] filesNumbers = new int[files.Length];
-
-                for (int i = 0; i < files.Length; i++)
+                versionsDir = Path.Combine(nukeDir, VersionsPath);
+                if (Created)
                 {
-                    filesNumbers[i] = int.Parse(Path.GetFileNameWithoutExtension(files[i].Name).Remove(0, VersionName.Length));
+                    // see latest
+                    FileInfo[] files = new DirectoryInfo(versionsDir).GetFiles();
+                    int[] filesNumbers = new int[files.Length];
+
+                    for (int i = 0; i < files.Length; i++)
+                    {
+                        filesNumbers[i] = int.Parse(Path.GetFileNameWithoutExtension(files[i].Name).Remove(0, VersionName.Length));
+                    }
+                    Latest = filesNumbers.Max();
                 }
-                Latest = filesNumbers.Max();
+            }
+        }
+
+        public async Task<UpdateInfo> GetLatestFromServer()
+        {
+            using (WebClient client = new WebClient())
+            {
+                string json = await client.DownloadStringTaskAsync(ServerUrl + "/" + ProjectInfoFile);
+                UpdateInfo info = JsonConvert.DeserializeObject<UpdateInfo>(json);
+                return info;
             }
         }
 
         public UpdateInfo ReadUpdate(int revision)
         {
             string path = Path.Combine(versionsDir, VersionName + revision.ToString(CultureInfo.InvariantCulture) + JsonFormat);
-
             string json = File.ReadAllText(path);
             return JsonConvert.DeserializeObject<UpdateInfo>(json);
+        }
+
+        public void DoUpdateFromServer(UpdateInfo current, UpdateInfo update)
+        {
+
         }
 
         public void Make()
