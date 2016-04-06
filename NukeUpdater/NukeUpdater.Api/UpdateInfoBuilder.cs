@@ -20,7 +20,7 @@ namespace NukeUpdater.Api
 
         public string[] ContainsIgnored = new string[]
         {
-            "vshost"
+            "vshost", "ProjectInfo.json", "NukeRemote.Updater.exe"
         };
 
         public UpdateInfoBuilder()
