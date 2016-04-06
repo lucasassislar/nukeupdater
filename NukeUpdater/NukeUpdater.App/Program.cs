@@ -32,7 +32,7 @@ namespace NukeUpdater.App
             }
 
             ProjectInfo proj = JsonConvert.DeserializeObject<ProjectInfo>(File.ReadAllText(nukeFile));
-            proj.Initialize(loc, true);
+            proj.InitializeClient(loc);
 
             Console.WriteLine("NukeUpdater Version " + Version.ToString("F2"));
 
@@ -48,7 +48,7 @@ namespace NukeUpdater.App
 
                 proj.FinishedUpdate = true;
                 proj.Latest = lo.Revision;
-                proj.Save(nukeFile);
+                proj.Save();
 
                 return;
             }
@@ -76,7 +76,7 @@ namespace NukeUpdater.App
 
             proj.FinishedUpdate = true;
             proj.Latest = latestServer.Revision;
-            proj.Save(nukeFile);
+            proj.Save();
         }
     }
 }

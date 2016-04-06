@@ -5,6 +5,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
@@ -39,9 +40,36 @@ namespace NukeUpdater.Api
 
         private string nukeDir;
         private string versionsDir;
+        private bool isClient;
 
-        public void Initialize(string root, bool client)
+        public static void MakeDefault(string server)
         {
+            if (!server.EndsWith('/'))
+            {
+                server = server + '/';
+            }
+
+            ProjectInfo proj = new ProjectInfo();
+            proj.Latest = -1;
+            proj.ServerUrl = server;
+            string loc = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+            proj.InitializeClient(loc);
+            proj.Save();
+        }
+
+        public void InitializeClient(string root)
+        {
+            isClient = true;
+            c = CultureInfo.InvariantCulture;
+
+            Root = root;
+            nukeDir = root;
+            Created = true;
+        }
+
+        public void InitializeServer(string root)
+        {
+            isClient = false;
             c = CultureInfo.InvariantCulture;
 
             if (root.Contains(NukeName))
@@ -56,20 +84,17 @@ namespace NukeUpdater.Api
             versionsDir = Path.Combine(nukeDir, VersionsPath);
             Created = Directory.Exists(nukeDir);
 
-            if (!client)
+            if (Created)
             {
-                if (Created)
-                {
-                    // see latest
-                    FileInfo[] files = new DirectoryInfo(versionsDir).GetFiles();
-                    int[] filesNumbers = new int[files.Length];
+                // see latest
+                FileInfo[] files = new DirectoryInfo(versionsDir).GetFiles();
+                int[] filesNumbers = new int[files.Length];
 
-                    for (int i = 0; i < files.Length; i++)
-                    {
-                        filesNumbers[i] = int.Parse(Path.GetFileNameWithoutExtension(files[i].Name).Remove(0, VersionName.Length));
-                    }
-                    Latest = filesNumbers.Max();
+                for (int i = 0; i < files.Length; i++)
+                {
+                    filesNumbers[i] = int.Parse(Path.GetFileNameWithoutExtension(files[i].Name).Remove(0, VersionName.Length));
                 }
+                Latest = filesNumbers.Max();
             }
         }
 
@@ -194,8 +219,6 @@ namespace NukeUpdater.Api
                 if (entry.State == EntryState.Added ||
                     entry.State == EntryState.Updated)
                 {
-                   
-
                     if (!File.Exists(to))
                     {
                         // file was already here
