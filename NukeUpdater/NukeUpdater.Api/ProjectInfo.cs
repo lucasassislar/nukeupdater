@@ -44,7 +44,7 @@ namespace NukeUpdater.Api
 
         public static void MakeDefault(string server)
         {
-            if (!server.EndsWith('/'))
+            if (!server.EndsWith("/"))
             {
                 server = server + '/';
             }
