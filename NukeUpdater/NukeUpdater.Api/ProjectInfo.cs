@@ -228,6 +228,7 @@ namespace NukeUpdater.Api
 
                 string relPath = Path.Combine(entry.RelativePath, entry.Name);
                 string to = Path.Combine(updateDir, relPath);
+                string rooted = Path.Combine(Root, relPath);
 
                 if (entry.Type == EntryType.Directory)
                 {
@@ -244,7 +245,6 @@ namespace NukeUpdater.Api
                         continue;
                     }
 
-                    string rooted = Path.Combine(Root, relPath);
                     string dir = Path.GetDirectoryName(to);
                     Directory.CreateDirectory(dir);
 
@@ -258,9 +258,9 @@ namespace NukeUpdater.Api
                 else if (entry.State == EntryState.Removed)
                 {
                     // deleeeeete
-                    if (File.Exists(to))
+                    if (File.Exists(rooted))
                     {
-                        File.Delete(to);
+                        File.Delete(rooted);
                     }
                 }
             }
