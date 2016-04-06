@@ -83,13 +83,14 @@ namespace NukeUpdater.Api
             isClient = false;
             c = CultureInfo.InvariantCulture;
 
-            if (root.Contains(NukeName))
-            {
-                // dipshit, you're not supposed to select a project folder
-                // but we'll work with it
-                int index = root.IndexOf(NukeName);
-                root = root.Remove(index, root.Length - index);
-            }
+            //if (root.Contains(NukeName))
+            //{
+            //    // dipshit, you're not supposed to select a project folder
+            //    // but we'll work with it
+            //    int index = root.IndexOf(NukeName);
+            //    root = root.Remove(index, root.Length - index);
+            //}
+
             Root = root;
             nukeDir = Path.Combine(root, NukeName);
             versionsDir = Path.Combine(nukeDir, VersionsPath);

@@ -11,6 +11,17 @@ namespace NukeUpdater.Api
     public class UpdateInfoBuilder : IDisposable
     {
         private MD5CryptoServiceProvider md5;
+        public bool IgnoreDefault { get; set; }
+
+        public string[] ExtensionsIgnored = new string[]
+        {
+            "pdb", "config", "manifest"
+        };
+
+        public string[] ContainsIgnored = new string[]
+        {
+            "vshost"
+        };
 
         public UpdateInfoBuilder()
         {
@@ -29,6 +40,27 @@ namespace NukeUpdater.Api
             return info;
         }
 
+        private bool Ignore(FileInfo file)
+        {
+            if (IgnoreDefault)
+            {
+                if (ExtensionsIgnored.Contains(file.Extension))
+                {
+                    return true;
+                }
+
+                for (int j = 0; j < ContainsIgnored.Length; j++)
+                {
+                    string ign = ContainsIgnored[j];
+                    if (file.Name.Contains(ign))
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
         private void RecursiveFirstUpdate(DirectoryInfo parent, UpdateInfo update, string root)
         {
             string lowerRoot = root.ToLower();
@@ -37,6 +69,11 @@ namespace NukeUpdater.Api
             for (int i = 0; i < files.Length; i++)
             {
                 FileInfo file = files[i];
+
+                if (Ignore(file))
+                {
+                    continue;
+                }
 
                 EntryInfo entry = MakeFileAddEntry(update, file, root, lowerRoot);
                 update.Entries.Add(entry);
@@ -95,6 +132,11 @@ namespace NukeUpdater.Api
             for (int i = 0; i < files.Length; i++)
             {
                 FileInfo file = files[i];
+
+                if (Ignore(file))
+                {
+                    continue;
+                }
 
                 // search for file on latest version
                 string lowerName = file.Name.ToLower();

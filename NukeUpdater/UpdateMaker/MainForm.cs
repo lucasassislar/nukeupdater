@@ -16,11 +16,6 @@ namespace UpdateMaker
         public MainForm()
         {
             InitializeComponent();
-
-            project = new ProjectInfo();
-            project.InitializeServer(txtFolder.Text);
-            project.Name = "Default";
-            UpdateView();
         }
 
         private ProjectInfo project;
@@ -56,6 +51,7 @@ namespace UpdateMaker
             }
 
             UpdateInfoBuilder builder = new UpdateInfoBuilder();
+            builder.IgnoreDefault = chkIgnore.Checked;
 
             if (project.Created)
             {
@@ -70,7 +66,7 @@ namespace UpdateMaker
                 update = builder.MakeFirstUpdate(project.Root);
             }
 
-            listBox1.DataSource = update.Entries;
+            //listBox1.DataSource = update.Entries;
         }
 
         private UpdateInfo update;
