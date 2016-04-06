@@ -47,6 +47,7 @@
             this.txtFolder.Size = new System.Drawing.Size(419, 29);
             this.txtFolder.TabIndex = 0;
             this.txtFolder.Text = "C:\\nuke";
+            this.txtFolder.TextChanged += new System.EventHandler(this.txtFolder_TextChanged);
             // 
             // btn_Search
             // 
