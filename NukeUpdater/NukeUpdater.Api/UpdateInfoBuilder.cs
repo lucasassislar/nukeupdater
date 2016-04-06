@@ -15,7 +15,7 @@ namespace NukeUpdater.Api
 
         public string[] ExtensionsIgnored = new string[]
         {
-            "pdb", "config", "manifest"
+            ".pdb", ".config", ".manifest", ".xml"
         };
 
         public string[] ContainsIgnored = new string[]
