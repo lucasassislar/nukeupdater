@@ -15,7 +15,7 @@ namespace NukeUpdater.Api
     {
         public static readonly string JsonFormat = ".json";
 
-        public static readonly string NukeName = ".nuke";
+        public static readonly string NukeName = "nuke";
         public static readonly string VersionName = "Version";
         public static readonly string VersionsPath = "Versions";
         public static readonly string ProjectInfoFile = "ProjectInfo.json";
