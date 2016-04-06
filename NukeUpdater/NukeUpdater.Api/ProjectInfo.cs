@@ -14,12 +14,13 @@ namespace NukeUpdater.Api
 {
     public class ProjectInfo
     {
-        public static readonly string JsonFormat = ".json";
+        public static string JsonFormat = ".json";
 
-        public static readonly string NukeName = "nuke";
-        public static readonly string VersionName = "Version";
-        public static readonly string VersionsPath = "Versions";
-        public static readonly string ProjectInfoFile = "ProjectInfo.json";
+        public static string NukeName = "nuke";
+        public static string VersionName = "Version";
+        public static string VersionsPath = "Versions";
+        public static string ProjectInfoFile = "ProjectInfo.json";
+        public static string UpdatesName = "Updates";
 
         public string Name { get; set; }
         public int Latest { get; set; }
@@ -42,7 +43,7 @@ namespace NukeUpdater.Api
         private string versionsDir;
         private bool isClient;
 
-        public static void MakeDefault(string name, string server, int latest)
+        public static void MakeDefault(string name, string server, int latest, bool embed)
         {
             if (!server.EndsWith("/"))
             {
@@ -58,8 +59,12 @@ namespace NukeUpdater.Api
             proj.Save();
 
 #if EMBED
-            string exePath = Path.Combine(loc, name + ".exe");
-            File.WriteAllBytes(exePath, NukeUpdater.Api.Properties.Resources.NukeUpdater_App);
+            if (embed)
+            {
+                string updatesFolder = Path.Combine(loc, UpdatesName);
+                string exePath = Path.Combine(updatesFolder, name + ".exe");
+                File.WriteAllBytes(exePath, NukeUpdater.Api.Properties.Resources.NukeUpdater_App);
+            }
 #endif
         }
 

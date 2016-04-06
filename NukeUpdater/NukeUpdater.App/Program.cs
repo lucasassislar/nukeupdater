@@ -10,9 +10,9 @@ using System.Threading.Tasks;
 
 namespace NukeUpdater.App
 {
-    class Program
+    static class Program
     {
-        static double Version = 1.0;
+        static readonly double Version = 1.0;
 
         static void Main(string[] args)
         {
