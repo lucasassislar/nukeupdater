@@ -43,7 +43,12 @@ namespace NukeUpdater.App
                 Console.WriteLine();
 
                 UpdateInfo lo = proj.GetVersionFromServer(proj.Latest).Result; // get the most uptodate version of our local info
+                proj.DownloadUpdateFromServer(lo);
                 proj.DoUpdateFromServer(null, lo);
+
+                proj.FinishedUpdate = true;
+                proj.Latest = lo.Revision;
+                proj.Save(nukeFile);
 
                 return;
             }
@@ -66,7 +71,12 @@ namespace NukeUpdater.App
 
             UpdateInfo local = proj.GetVersionFromServer(proj.Latest).Result; // get the most uptodate version of our local info
             UpdateInfo latestServer = proj.GetLatestVersionFromServer(update).Result;
+            proj.DownloadUpdateFromServer(latestServer);
             proj.DoUpdateFromServer(local, latestServer);
+
+            proj.FinishedUpdate = true;
+            proj.Latest = latestServer.Revision;
+            proj.Save(nukeFile);
         }
     }
 }

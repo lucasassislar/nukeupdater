@@ -107,10 +107,13 @@ namespace NukeUpdater.Api
             return JsonConvert.DeserializeObject<UpdateInfo>(json);
         }
 
-        private EntryInfo downloading;
-        public void DoUpdateFromServer(UpdateInfo local, UpdateInfo update)
+        public void DownloadUpdateFromServer(UpdateInfo update)
         {
             string updateDir = Path.Combine(Root, "Update");
+            if (Directory.Exists(updateDir))
+            {
+                Directory.Delete(updateDir, true);
+            }
             Directory.CreateDirectory(updateDir);
 
             string rootUrl = ServerUrl + VersionsPath + "/" + VersionName + update.Revision.ToString(c) + "/";
@@ -156,13 +159,51 @@ namespace NukeUpdater.Api
                     string dir = Path.GetDirectoryName(to);
                     Directory.CreateDirectory(dir);
 
-                    downloading = entry;
                     using (WebClient client = new WebClient())
                     {
-                        Console.WriteLine("Downloading " + downloading.Name);
+                        Console.WriteLine("Downloading " + entry.Name);
                         string url = rootUrl + relPath.Replace(Path.DirectorySeparatorChar, '/');
                         client.DownloadFile(url, to);
                     }
+                }
+            }
+        }
+
+        /// <summary>
+        /// This method expects that you already downloaded the entire update
+        /// </summary>
+        /// <param name="local"></param>
+        /// <param name="server"></param>
+        public void DoUpdateFromServer(UpdateInfo local, UpdateInfo update)
+        {
+            string updateDir = Path.Combine(Root, "Update");
+
+            for (int i = 0; i < update.Entries.Count; i++)
+            {
+                EntryInfo entry = update.Entries[i];
+
+                if (entry.Type == EntryType.Directory)
+                {
+                    continue;
+                }
+
+                if (entry.State == EntryState.Added ||
+                    entry.State == EntryState.Updated)
+                {
+                    string relPath = Path.Combine(entry.RelativePath, entry.Name);
+                    string to = Path.Combine(updateDir, relPath);
+
+                    if (!File.Exists(to))
+                    {
+                        // file was already here
+                        continue;
+                    }
+
+                    string rooted = Path.Combine(Root, relPath);
+                    string dir = Path.GetDirectoryName(to);
+                    Directory.CreateDirectory(dir);
+
+                    File.Move(to, rooted);
                 }
             }
 
@@ -216,6 +257,11 @@ namespace NukeUpdater.Api
             {
                 File.Delete(file);
             }
+            File.WriteAllText(file, JsonConvert.SerializeObject(this));
+        }
+
+        public void Save(string file)
+        {
             File.WriteAllText(file, JsonConvert.SerializeObject(this));
         }
     }
