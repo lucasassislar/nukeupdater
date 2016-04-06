@@ -9,6 +9,7 @@ namespace NukeUpdater.Api
     public class UpdateInfo
     {
         public List<EntryInfo> Entries { get; set; }
+        public int Revision { get; set; }
 
         public UpdateInfo()
         {

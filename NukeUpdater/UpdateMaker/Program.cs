@@ -21,6 +21,7 @@ namespace UpdateMaker
 
             UpdateInfoBuilder builder = new UpdateInfoBuilder();
             UpdateInfo info = builder.MakeFirstUpdate(testFolder);
+            UpdateInfo sec = builder.MakeUpdate(info, testFolder);
 
             int wat = -1;
             return;
