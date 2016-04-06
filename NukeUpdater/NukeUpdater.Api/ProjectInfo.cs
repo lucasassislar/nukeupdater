@@ -6,11 +6,10 @@ using System.Threading.Tasks;
 
 namespace NukeUpdater.Api
 {
-    public class EntryInfo
+    public class ProjectInfo
     {
-        public int LastUpdate { get; set; }
-        public string Hash { get; set; }
         public string Name { get; set; }
-        public string RelativePath { get; set; }
+
+        public List<UpdateInfo> Updates;
     }
 }
