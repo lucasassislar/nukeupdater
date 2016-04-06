@@ -53,7 +53,7 @@ namespace NukeUpdater.Api
                 }
 
                 string rel = Path.Combine(root, dir.Name);
-                EntryInfo entry = MakeDirAddEntry(update, dir, rel, rel.ToLower());
+                EntryInfo entry = MakeDirAddEntry(update, dir, root, lowerRoot);
                 update.Entries.Add(entry);
 
                 RecursiveFirstUpdate(dir, update, rel);
@@ -150,11 +150,11 @@ namespace NukeUpdater.Api
 
                 // search for direcotry on latest version
                 string lowerName = dir.Name.ToLower();
-                var search = lastContent.Where(c => c.NameLower == lowerName && c.RelativePathLower == relLower);
+                var search = lastContent.Where(c => c.NameLower == lowerName && c.RelativePathLower == root);
 
                 if (search.Count() == 0)
                 {
-                    EntryInfo entry = MakeDirAddEntry(update, dir, rel, relLower);
+                    EntryInfo entry = MakeDirAddEntry(update, dir, root, lowerRoot);
                     update.Entries.Add(entry);
                 }
                 else

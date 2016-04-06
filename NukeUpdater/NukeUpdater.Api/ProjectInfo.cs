@@ -30,6 +30,7 @@ namespace NukeUpdater.Api
         [JsonIgnore]
         public string Root { get; private set; }
 
+        private CultureInfo c;
 
         private ProjectInfo()
         {
@@ -44,6 +45,8 @@ namespace NukeUpdater.Api
 
         private void Initialize(string root, bool client)
         {
+            c = CultureInfo.InvariantCulture;
+
             if (root.Contains(NukeName))
             {
                 // dipshit, you're not supposed to select a project folder
@@ -90,9 +93,43 @@ namespace NukeUpdater.Api
             return JsonConvert.DeserializeObject<UpdateInfo>(json);
         }
 
+        private EntryInfo downloading;
         public void DoUpdateFromServer(UpdateInfo current, UpdateInfo update)
         {
+            string updateDir = Path.Combine(versionsDir, "Update");
+            Directory.CreateDirectory(updateDir);
 
+            string rootUrl = ServerUrl + "/" + ProjectInfoFile + "/" + VersionName + update.Revision.ToString(c);
+
+            for (int i = 0; i < update.Entries.Count; i++)
+            {
+                EntryInfo entry = update.Entries[i];
+
+                if (entry.State == EntryState.Added ||
+                    entry.State == EntryState.Updated)
+                {
+                    string relPath = Path.Combine(entry.RelativePath, entry.Name);
+                    string to = Path.Combine(updateDir, relPath);
+                    string dir = Path.GetDirectoryName(to);
+                    Directory.CreateDirectory(dir);
+
+                    downloading = entry;
+                    using (WebClient client = new WebClient())
+                    {
+                        client.DownloadProgressChanged += client_DownloadProgressChanged;
+                        string url = rootUrl + relPath.Replace(Path.DirectorySeparatorChar, '/');
+                        client.DownloadFile(url, to);
+                    }
+                }
+            }
+
+            Directory.Delete(updateDir, true);
+        }
+
+        private void client_DownloadProgressChanged(object sender, DownloadProgressChangedEventArgs e)
+        {
+            Console.CursorLeft = 0;
+            Console.WriteLine(e.ProgressPercentage + "% downloaded of " + downloading.Name);
         }
 
         public void Make()
