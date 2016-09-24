@@ -1,0 +1,49 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.24720.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NukeUpdater.Api", "NukeUpdater.Api\NukeUpdater.Api.csproj", "{982CA628-CDBE-4D2E-B674-4F1CC7197681}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UpdateMaker", "UpdateMaker\UpdateMaker.csproj", "{FB21C6F0-F956-4302-B468-FDC424C1AB38}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{56B9EA86-F216-496D-B796-5094CC19701E}"
+	ProjectSection(SolutionItems) = preProject
+		NugetCmds.txt = NugetCmds.txt
+		ProjectStructure.txt = ProjectStructure.txt
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NukeUpdater.App", "NukeUpdater.App\NukeUpdater.App.csproj", "{60EBD8C5-BCAC-4C4B-B12D-BD9BDD7BEDDF}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "VS", "VS", "{8F62AF0C-33E3-4F3C-B374-83ACA3593EAA}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release_Embedded|Any CPU = Release_Embedded|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{982CA628-CDBE-4D2E-B674-4F1CC7197681}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{982CA628-CDBE-4D2E-B674-4F1CC7197681}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{982CA628-CDBE-4D2E-B674-4F1CC7197681}.Release_Embedded|Any CPU.ActiveCfg = Release_Embedded|Any CPU
+		{982CA628-CDBE-4D2E-B674-4F1CC7197681}.Release_Embedded|Any CPU.Build.0 = Release_Embedded|Any CPU
+		{982CA628-CDBE-4D2E-B674-4F1CC7197681}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{982CA628-CDBE-4D2E-B674-4F1CC7197681}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FB21C6F0-F956-4302-B468-FDC424C1AB38}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FB21C6F0-F956-4302-B468-FDC424C1AB38}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FB21C6F0-F956-4302-B468-FDC424C1AB38}.Release_Embedded|Any CPU.ActiveCfg = Release_Embedded|Any CPU
+		{FB21C6F0-F956-4302-B468-FDC424C1AB38}.Release_Embedded|Any CPU.Build.0 = Release_Embedded|Any CPU
+		{FB21C6F0-F956-4302-B468-FDC424C1AB38}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FB21C6F0-F956-4302-B468-FDC424C1AB38}.Release|Any CPU.Build.0 = Release|Any CPU
+		{60EBD8C5-BCAC-4C4B-B12D-BD9BDD7BEDDF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{60EBD8C5-BCAC-4C4B-B12D-BD9BDD7BEDDF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{60EBD8C5-BCAC-4C4B-B12D-BD9BDD7BEDDF}.Release_Embedded|Any CPU.ActiveCfg = Release_Embedded|Any CPU
+		{60EBD8C5-BCAC-4C4B-B12D-BD9BDD7BEDDF}.Release_Embedded|Any CPU.Build.0 = Release_Embedded|Any CPU
+		{60EBD8C5-BCAC-4C4B-B12D-BD9BDD7BEDDF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{60EBD8C5-BCAC-4C4B-B12D-BD9BDD7BEDDF}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
